@@ -8,6 +8,8 @@ import vinyl;
 struct vtx {
   dotz::vec2 pos;
   dotz::vec2 size;
+  dotz::vec4 colour;
+  unsigned id;
 };
 
 // "clay" currently focus on defining certain reusable patterns
@@ -18,6 +20,14 @@ struct app_stuff : vinyl::base_app_stuff {
   clay::buffer<vtx> buffer { 10240 };
 
   app_stuff() : base_app_stuff { "poc" } {}
+
+  auto vertex_attributes() {
+    return decltype(buffer)::vertex_attributes(
+        &vtx::pos,
+        &vtx::size,
+        &vtx::colour,
+        &vtx::id);
+  }
 };
 struct ext_stuff {};
 using vv = vinyl::v<app_stuff, ext_stuff>;

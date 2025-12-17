@@ -1,4 +1,5 @@
 export module clay:wasm;
+import dotz;
 import gelo;
 import hai;
 import jute;
@@ -104,6 +105,36 @@ namespace clay {
     [[nodiscard]] auto map() {
       bind();
       return mapper<T> { m_capacity, &m_count };
+    }
+
+    using vertex_attribute_t = hai::fn<void, unsigned>;
+    using vertex_attributes_t = hai::view<vertex_attribute_t>;
+    [[nodiscard]] static vertex_attribute_t vertex_attribute(dotz::vec2 (T::*m)) {
+      return [m](unsigned i) {
+        using namespace gelo;
+        enable_vertex_attrib_array(i);
+        vertex_attrib_pointer(i, 2, FLOAT, false, sizeof(T), traits::offset_of(m));
+        vertex_attrib_divisor(i, 1);
+      };
+    }
+    [[nodiscard]] static vertex_attribute_t vertex_attribute(dotz::vec4 (T::*m)) {
+      return [m](unsigned i) {
+        using namespace gelo;
+        enable_vertex_attrib_array(i);
+        vertex_attrib_pointer(i, 4, FLOAT, false, sizeof(T), traits::offset_of(m));
+        vertex_attrib_divisor(i, 1);
+      };
+    }
+    [[nodiscard]] static vertex_attribute_t vertex_attribute(unsigned (T::*m)) {
+      return [m](unsigned i) {
+        using namespace gelo;
+        enable_vertex_attrib_array(i);
+        vertex_attrib_i_pointer(i, 1, UNSIGNED_INT, sizeof(T), traits::offset_of(m));
+        vertex_attrib_divisor(i, 1);
+      };
+    }
+    [[nodiscard]] static auto vertex_attributes(auto &&... attrs) {
+      return vertex_attributes_t { vertex_attribute(attrs)...  };
     }
   };
 }

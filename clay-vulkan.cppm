@@ -1,4 +1,5 @@
 export module clay:vulkan;
+import dotz;
 import hai;
 import jute;
 import sv;
@@ -57,6 +58,24 @@ namespace clay {
 
     [[nodiscard]] auto map() {
       return voo::memiter<T> { *m_buf.memory, &m_count };
+    }
+
+    [[nodiscard]] static auto vertex_input_bind() {
+      return vee::vertex_input_bind_per_instance(sizeof(T));
+    }
+
+    using vertex_attributes_t = hai::view<wagen::VkVertexInputAttributeDescription>;
+    [[nodiscard]] static auto vertex_attribute(dotz::vec2 (T::*m)) {
+      return vee::vertex_attribute_vec2(0, traits::offset_of(m));
+    }
+    [[nodiscard]] static auto vertex_attribute(dotz::vec4 (T::*m)) {
+      return vee::vertex_attribute_vec4(0, traits::offset_of(m));
+    }
+    [[nodiscard]] static auto vertex_attribute(unsigned (T::*m)) {
+      return vee::vertex_attribute_uint(0, traits::offset_of(m));
+    }
+    [[nodiscard]] static auto vertex_attributes(auto &&... attrs) {
+      return vertex_attributes_t { vertex_attribute(attrs)...  };
     }
 
     void bind(vee::command_buffer cb) {
