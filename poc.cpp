@@ -10,10 +10,12 @@ struct vtx {
   dotz::vec2 size;
 };
 
+// "clay" currently focus on defining certain reusable patterns
 struct app_stuff : vinyl::base_app_stuff {
   clay::nearest_texture txt { "poc" };
   clay::vert_shader vert { "poc", [] {} };
   clay::vert_shader frag { "poc", [] {} };
+  clay::buffer<vtx> buffer { 10240 };
 
   app_stuff() : base_app_stuff { "poc" } {}
 };

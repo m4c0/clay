@@ -38,4 +38,29 @@ namespace clay {
   export struct vert_shader : voo::vert_shader {
     vert_shader(sv name, hai::fn<void> callback) : voo::vert_shader { jute::fmt<"%s.vert.spv">(name) } { callback(); }
   };
+
+  export template<typename T> class buffer {
+    voo::bound_buffer m_buf;
+
+    unsigned m_count {};
+  public:
+    explicit buffer(unsigned max) :
+      m_buf {
+        voo::bound_buffer::create_from_host(
+          wagen::physical_device(),
+          max * sizeof(T),
+          vee::buffer_usage::vertex_buffer)
+      }
+    {}
+
+    [[nodiscard]] constexpr auto count() const { return m_count; }
+
+    [[nodiscard]] auto map() {
+      return voo::memiter<T> { *m_buf.memory, &m_count };
+    }
+
+    void bind(vee::command_buffer cb) {
+      vee::cmd_bind_vertex_buffers(cb, 0, *m_buf.buffer, 0);
+    }
+  };
 }

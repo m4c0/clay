@@ -67,4 +67,43 @@ namespace clay {
     frag_shader() = default;
     explicit frag_shader(sv name, hai::fn<void> callback) : shader { gelo::FRAGMENT_SHADER, name, "frag", callback } {}
   };
+
+  export template<typename T> class mapper {
+    hai::varray<T> m_data;
+    unsigned * m_count;
+
+  public:
+    mapper(unsigned capacity, unsigned * count) : m_data { capacity }, m_count { count } {}
+    ~mapper() {
+      *m_count = m_data.size();
+      gelo::buffer_data(gelo::ARRAY_BUFFER, m_data.begin(), *m_count * sizeof(T), gelo::DYNAMIC_DRAW);
+    }
+
+    void operator+=(T t) {
+      m_data.push_back(t);
+    }
+  };
+
+  export template<typename T> class buffer {
+    int m_id;
+    unsigned m_capacity;
+    unsigned m_count;
+
+  public:
+    explicit buffer(unsigned capacity) :
+      m_id { gelo::create_buffer() }
+    , m_capacity { capacity }
+    {}
+
+    [[nodiscard]] constexpr auto count() const { return m_count; }
+
+    void bind() {
+      gelo::bind_buffer(gelo::ARRAY_BUFFER, m_id);
+    }
+
+    [[nodiscard]] auto map() {
+      bind();
+      return mapper<T> { m_capacity, &m_count };
+    }
+  };
 }
