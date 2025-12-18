@@ -65,6 +65,9 @@ namespace clay {
     }
 
     using vertex_attributes_t = hai::view<wagen::VkVertexInputAttributeDescription>;
+    [[nodiscard]] static auto vertex_attribute(float (T::*m)) {
+      return vee::vertex_attribute_float(0, traits::offset_of(m));
+    }
     [[nodiscard]] static auto vertex_attribute(dotz::vec2 (T::*m)) {
       return vee::vertex_attribute_vec2(0, traits::offset_of(m));
     }
