@@ -85,6 +85,8 @@ namespace clay {
     }
   };
 
+  using vertex_attribute_t = hai::fn<void, unsigned>;
+  export using vertex_attributes_t = hai::view<vertex_attribute_t>;
   export template<typename T> class buffer {
     int m_id;
     unsigned m_capacity;
@@ -107,8 +109,6 @@ namespace clay {
       return mapper<T> { m_capacity, &m_count };
     }
 
-    using vertex_attribute_t = hai::fn<void, unsigned>;
-    using vertex_attributes_t = hai::view<vertex_attribute_t>;
     [[nodiscard]] static vertex_attribute_t vertex_attribute(float (T::*m)) {
       return [m](unsigned i) {
         using namespace gelo;

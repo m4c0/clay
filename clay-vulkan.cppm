@@ -40,6 +40,7 @@ namespace clay {
     vert_shader(sv name, hai::fn<void> callback) : voo::vert_shader { jute::fmt<"%s.vert.spv">(name) } { callback(); }
   };
 
+  export using vertex_attributes_t = hai::view<wagen::VkVertexInputAttributeDescription>;
   export template<typename T> class buffer {
     voo::bound_buffer m_buf;
 
@@ -64,7 +65,6 @@ namespace clay {
       return vee::vertex_input_bind_per_instance(sizeof(T));
     }
 
-    using vertex_attributes_t = hai::view<wagen::VkVertexInputAttributeDescription>;
     [[nodiscard]] static auto vertex_attribute(float (T::*m)) {
       return vee::vertex_attribute_float(0, traits::offset_of(m));
     }
