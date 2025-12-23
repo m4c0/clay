@@ -145,4 +145,7 @@ namespace clay {
       return vertex_attributes_t { vertex_attribute(attrs)...  };
     }
   };
+
+  export using push_constant_t = void *;
+  export template<typename T> auto vertex_push_constant() { return nullptr; }
 }

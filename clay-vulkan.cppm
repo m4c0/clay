@@ -85,4 +85,9 @@ namespace clay {
       vee::cmd_bind_vertex_buffers(cb, 0, *m_buf.buffer, 0);
     }
   };
+
+  export using push_constant_t = wagen::VkPushConstantRange;
+  export template<typename T> auto vertex_push_constant() {
+    return vee::vertex_push_constant_range<T>();
+  }
 }
