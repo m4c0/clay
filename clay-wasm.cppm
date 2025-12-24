@@ -7,6 +7,7 @@ import silog;
 import sires;
 import stubby;
 import sv;
+import vinyl;
 
 namespace clay {
   export struct nearest_texture {
@@ -148,4 +149,75 @@ namespace clay {
 
   export using push_constant_t = void *;
   export template<typename T> auto vertex_push_constant() { return nullptr; }
+}
+
+namespace clay::das {
+  export struct params {
+    vinyl::base_app_stuff * app;
+    sv shader;
+    sv texture;
+    unsigned max_instances;
+    vertex_attributes_t vertex_attributes;
+    push_constant_t push_constant;
+  };
+
+  export template<typename T> class pipeline {
+    nearest_texture m_txt;
+    buffer<T> m_buf;
+
+    vert_shader m_vert;
+    frag_shader m_frag;
+    int m_program = 0;
+
+    void link() {
+      if (!m_vert || !m_frag) return;
+
+      using namespace gelo;
+
+      auto p = create_program();
+      attach_shader(p, m_vert.id());
+      attach_shader(p, m_frag.id());
+
+      link_program(p);
+      if (!get_program_parameter_b(p, LINK_STATUS)) {
+        char buf[1024] {};
+        get_program_info_log(p, buf, sizeof(buf) - 1);
+        silog::log(silog::error, "Error linking program:\n%s", buf);
+      }
+
+      use_program(p);
+
+      enable(BLEND);
+      blend_func(ONE, ONE_MINUS_SRC_ALPHA);
+
+      m_program = p;
+    }
+
+  public:
+    pipeline(const params & p) :
+      m_txt { p.texture }
+    , m_buf { p.max_instances }
+    , m_vert { p.shader, [this] { link(); } }
+    , m_frag { p.shader, [this] { link(); } }
+    {
+      m_buf.bind();
+
+      auto attrs = p.vertex_attributes;
+      for (auto i = 0; i < attrs.size(); i++) attrs[i](i);
+    }
+
+    auto map() { return m_buf.map(); }
+
+    auto program() { return m_program; }
+
+    void cmd_draw() {
+      using namespace gelo;
+
+      draw_arrays_instanced(TRIANGLE_STRIP, 0, 4, m_buf.count());
+    }
+
+    static auto vertex_attributes(auto &&... args) {
+      return buffer<T>::vertex_attributes(args...);
+    }
+  };
 }

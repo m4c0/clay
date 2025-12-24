@@ -3,6 +3,7 @@ import dotz;
 import hai;
 import jute;
 import sv;
+import vinyl;
 import voo;
 import wagen;
 
@@ -90,4 +91,58 @@ namespace clay {
   export template<typename T> auto vertex_push_constant() {
     return vee::vertex_push_constant_range<T>();
   }
+}
+
+namespace clay::das {
+  export struct params {
+    vinyl::base_app_stuff * app;
+    sv shader;
+    sv texture;
+    unsigned max_instances;
+    vertex_attributes_t vertex_attributes;
+    push_constant_t push_constant;
+  };
+
+  export template<typename T> class pipeline {
+    nearest_texture m_txt;
+    buffer<T> m_buf;
+
+    vee::render_pass m_rp;
+    vee::pipeline_layout m_pl;
+    vee::gr_pipeline m_ppl;
+
+  public:
+    pipeline(const params & p) :
+      m_txt { p.texture }
+    , m_buf { p.max_instances }
+    , m_rp { voo::single_att_render_pass(p.app->dq) }
+    , m_pl { vee::create_pipeline_layout(*m_txt.dsl, p.push_constant) }
+    , m_ppl { vee::create_graphics_pipeline({
+      .pipeline_layout = *m_pl,
+      .render_pass = *m_rp,
+      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+      .back_face_cull = false,
+      .shaders {
+        *vert_shader(p.shader, [] {}),
+        *frag_shader(p.shader, [] {}),
+      },
+      .bindings { m_buf.vertex_input_bind() },
+      .attributes = p.vertex_attributes,
+    }) }
+    {}
+
+    auto map() { return m_buf.map(); }
+
+    void cmd_draw(vee::command_buffer cb, auto * pc) {
+      vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+      vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_txt.dset);
+      vee::cmd_push_vertex_constants(cb, *m_pl, pc);
+      m_buf.bind(cb);
+      vee::cmd_draw(cb, 4, m_buf.count());
+    }
+
+    static auto vertex_attributes(auto &&... args) {
+      return buffer<T>::vertex_attributes(args...);
+    }
+  };
 }
