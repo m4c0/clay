@@ -206,6 +206,8 @@ namespace clay::das {
       for (auto i = 0; i < attrs.size(); i++) attrs[i](i);
     }
 
+    [[nodiscard]] explicit operator bool() const { return m_program != 0; }
+
     auto map() { return m_buf.map(); }
 
     auto program() { return m_program; }
