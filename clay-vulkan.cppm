@@ -133,6 +133,7 @@ namespace clay::das {
 
     [[nodiscard]] explicit operator bool() const { return true; }
 
+    auto & texture() { return m_txt; }
     auto map() { return m_buf.map(); }
 
     void cmd_draw(vee::command_buffer cb, auto * pc) {
