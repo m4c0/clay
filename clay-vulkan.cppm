@@ -62,8 +62,11 @@ namespace clay {
       return voo::memiter<T> { *m_buf.memory, &m_count };
     }
 
-    [[nodiscard]] static auto vertex_input_bind() {
+    [[nodiscard]] static auto vertex_input_bind_per_instance() {
       return vee::vertex_input_bind_per_instance(sizeof(T));
+    }
+    [[nodiscard]] static auto vertex_input_bind() {
+      return vee::vertex_input_bind(sizeof(T));
     }
 
     [[nodiscard]] static auto vertex_attribute(float (T::*m)) {
@@ -126,7 +129,7 @@ namespace clay::das {
         *vert_shader(p.shader, [] {}),
         *frag_shader(p.shader, [] {}),
       },
-      .bindings { m_buf.vertex_input_bind() },
+      .bindings { m_buf.vertex_input_bind_per_instance() },
       .attributes = p.vertex_attributes,
     }) }
     {}
