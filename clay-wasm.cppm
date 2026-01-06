@@ -149,22 +149,8 @@ namespace clay {
 
   export using push_constant_t = void *;
   export template<typename T> auto vertex_push_constant() { return nullptr; }
-}
 
-namespace clay::das {
-  export struct params {
-    vinyl::base_app_stuff * app;
-    sv shader;
-    sv texture;
-    unsigned max_instances;
-    vertex_attributes_t vertex_attributes;
-    push_constant_t push_constant;
-  };
-
-  export template<typename T> class pipeline {
-    nearest_texture m_txt;
-    buffer<T> m_buf;
-
+  export class program {
     vert_shader m_vert;
     frag_shader m_frag;
     int m_program = 0;
@@ -194,11 +180,36 @@ namespace clay::das {
     }
 
   public:
+    explicit program(sv shader) :
+      m_vert { shader, [this] { link(); } }
+    , m_frag { shader, [this] { link(); } }
+    {}
+
+    [[nodiscard]] explicit operator bool() const { return m_program != 0; }
+    [[nodiscard]] int id() const { return m_program; }
+  };
+}
+
+namespace clay::das {
+  export struct params {
+    vinyl::base_app_stuff * app;
+    sv shader;
+    sv texture;
+    unsigned max_instances;
+    vertex_attributes_t vertex_attributes;
+    push_constant_t push_constant;
+  };
+
+  export template<typename T> class pipeline {
+    nearest_texture m_txt;
+    buffer<T> m_buf;
+    program m_program;
+
+  public:
     pipeline(const params & p) :
       m_txt { p.texture }
     , m_buf { p.max_instances }
-    , m_vert { p.shader, [this] { link(); } }
-    , m_frag { p.shader, [this] { link(); } }
+    , m_program { p.shader }
     {
       m_buf.bind();
 
@@ -206,11 +217,11 @@ namespace clay::das {
       for (auto i = 0; i < attrs.size(); i++) attrs[i](i);
     }
 
-    [[nodiscard]] explicit operator bool() const { return m_program != 0; }
+    [[nodiscard]] explicit operator bool() const { return m_program.id(); }
 
     auto map() { return m_buf.map(); }
 
-    auto program() { return m_program; }
+    auto program() { return m_program.id(); }
 
     void cmd_draw() {
       using namespace gelo;
