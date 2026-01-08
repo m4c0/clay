@@ -85,7 +85,7 @@ namespace clay {
       return vertex_attributes_t { vertex_attribute(attrs)...  };
     }
 
-    void bind(vee::command_buffer cb) {
+    void bind(vee::command_buffer cb) const {
       vee::cmd_bind_vertex_buffers(cb, 0, *m_buf.buffer, 0);
     }
   };
