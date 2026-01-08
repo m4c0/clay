@@ -56,6 +56,7 @@ namespace clay {
       }
     {}
 
+    [[nodiscard]] constexpr auto operator*() const { return *m_buf.buffer; }
     [[nodiscard]] constexpr auto count() const { return m_count; }
 
     [[nodiscard]] auto map() {
