@@ -49,10 +49,7 @@ namespace clay {
   public:
     explicit buffer(unsigned max) :
       m_buf {
-        voo::bound_buffer::create_from_host(
-          wagen::physical_device(),
-          max * sizeof(T),
-          vee::buffer_usage::vertex_buffer)
+        voo::bound_buffer::create_from_host(max * sizeof(T), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
       }
     {}
 
