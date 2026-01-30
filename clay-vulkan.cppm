@@ -88,6 +88,25 @@ namespace clay {
     }
   };
 
+  export template<typename T> class ix_buffer {
+    voo::bound_buffer m_buf;
+
+    unsigned m_count {};
+  public:
+    explicit ix_buffer(unsigned max) :
+      m_buf {
+        voo::bound_buffer::create_from_host(max * sizeof(T), VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+      }
+    {}
+
+    [[nodiscard]] constexpr auto operator*() const { return *m_buf.buffer; }
+    [[nodiscard]] constexpr auto count() const { return m_count; }
+
+    [[nodiscard]] auto map() {
+      return voo::memiter<T> { *m_buf.memory, &m_count };
+    }
+  };
+
   export using push_constant_t = wagen::VkPushConstantRange;
   export template<typename T> auto vertex_push_constant() {
     return vee::vertex_push_constant_range<T>();
